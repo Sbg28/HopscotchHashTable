@@ -9,19 +9,26 @@
 class HopscotchHashTable {
 public:
     // Constructor {Default}
-    HopscotchHasTable();
+    HopscotchHashTable();
     // Constructor {length only}
-    HopscotchHasTable(int length);
+    HopscotchHashTable(int length);
     // Constructot {length and neighborhoodsize provided}
-    HopscotchHasTable(int length, int neighborhoodSize);
+    HopscotchHashTable(int length, int neighborhoodSize);
+
+    ~HopscotchHashTable();
+
     // initialize the table itself
-    initializeTable();
+    void initializeTable();
 
     void addValue(int input);
 
     void removeValue(int input);
 
     void searchValue(int input);
+
+    void printTable();
+
+    void printBitmaps();
 
 private:
     int neighborhoodSize_;
@@ -35,13 +42,14 @@ private:
     Bucket* table = nullptr;
 
     int getValue(int index);
-    void insert(int hashValue);
+    void insert(int hashValue, int input);
     int findNextAvailable(int hashValue);
     bool openSpace(int desiredSpace, int& nextOpen, int& diff);
     void recursivelyOpenSpace(int& currentSpace);
     bool inNeighborhood(int homeValue, int searchValue, int& diff);
+    void swapPositions(int i, int current);
 
-}
+};
 
 
 
