@@ -71,7 +71,6 @@ void HopscotchHashTable::insert(int hashValue, int input){
         int next = findNextAvailable(hashValue);    // Find next open space
         // if in neighborhood of home location : Store in found space
         if(inNeighborhood(hashValue, next, diff)){
-            std::cout << input << std::endl;
             table[next].value = input;
             table[hashValue].bitmap[diff] = true;
             table[next].filled = true;
@@ -253,4 +252,38 @@ void HopscotchHashTable::printBitmaps(){
         }
         std::cout << "]" << std::endl;
     }
+}
+
+int HopscotchHashTable::searchValue(int input){
+    // Get Hash Value
+    int hashValue = input % length_;
+    // search
+    try{
+        return search(hashValue, input);
+    }
+    catch (std::string e){
+        std::cout << e << std::endl;
+    }
+}
+
+int HopscotchHashTable::search(int hashValue, int input){
+    int index = 0;
+    int loopAfter = length_;
+    if(neighborhoodSize_ + hashValue > length_){
+        loopAfter = length_ - hashValue - 1;
+    }
+    for (int i = 0; i < neighborhoodSize_; ++i){
+        if(table[hashValue].bitmap[i] == true){
+            if(i > loopAfter){
+                index = i - loopAfter - 1;
+            }
+            else{
+                index = hashValue + i;
+            }
+            if(table[index].value == input){
+                return index;
+            }
+        }
+    }
+    return -1;
 }

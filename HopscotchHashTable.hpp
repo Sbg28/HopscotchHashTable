@@ -24,7 +24,7 @@ public:
 
     void removeValue(int input);
 
-    void searchValue(int input);
+    int searchValue(int input);
 
     void printTable();
 
@@ -48,6 +48,7 @@ private:
     void recursivelyOpenSpace(int& currentSpace);
     bool inNeighborhood(int homeValue, int searchValue, int& diff);
     void swapPositions(int i, int current);
+    int search(int hashValue, int input);
 
 };
 
