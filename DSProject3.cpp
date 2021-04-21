@@ -28,6 +28,17 @@ int main() {
     std::cout << table.searchValue(2) << std::endl;
     std::cout << table.searchValue(3) << std::endl;
     std::cout << table.searchValue(4) << std::endl;
+
+    table.removeValue(49);
+    table.removeValue(19);
+    table.removeValue(4);
+    table.printTable();
+    table.printBitmaps();
+
+    table.clearTable();
+    table.printTable();
+    table.printBitmaps();
+
 }
 
 

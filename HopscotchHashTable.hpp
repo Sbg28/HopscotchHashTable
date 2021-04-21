@@ -28,6 +28,9 @@ public:
     // print the bitmaps for each bucket
     void printBitmaps();
 
+    // clear the table
+    void clearTable();
+
 private:
     int neighborhoodSize_;
     int length_;
@@ -52,7 +55,5 @@ private:
     int search(int hashValue, int input, int& offset);
     void deleteEntry(int hashValue, int location, int offset);
 };
-
-
 
 #endif

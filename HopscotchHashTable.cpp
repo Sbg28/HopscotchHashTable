@@ -359,8 +359,21 @@ int HopscotchHashTable::search(int hashValue, int input, int& offset){
 // @param location int location of desired entry to remove
 // @param offset int bitmap offset between the location and the home hash value
 void HopscotchHashTable::deleteEntry(int hashValue, int location, int offset){
-    table[hashValue].bitmap(offset) = false;
+    table[hashValue].bitmap[offset] = false;
     table[location].value = -1;
     table[location].homeHashValue = -1;
     table[location].filled = false;
+}
+
+// clearTable
+// reset the table of all entries
+void HopscotchHashTable::clearTable(){
+    for(int i = 0; i < length_; ++i){
+        table[i].value = -1;
+        table[i].filled = false;
+        table[i].homeHashValue = -1;
+        for(int j = 0; j < neighborhoodSize_; ++j){
+            table[i].bitmap[j] = false;
+        }
+    }
 }
