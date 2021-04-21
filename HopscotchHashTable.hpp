@@ -17,17 +17,15 @@ public:
 
     ~HopscotchHashTable();
 
-    // initialize the table itself
-    void initializeTable();
-
+    // add a value to the table
     void addValue(int input);
-
+    // remove a value from the table
     void removeValue(int input);
-
+    // search for a specific value
     int searchValue(int input);
-
+    // print the table contents
     void printTable();
-
+    // print the bitmaps for each bucket
     void printBitmaps();
 
 private:
@@ -41,6 +39,9 @@ private:
     };
     Bucket* table = nullptr;
 
+    // initialize the table itself
+    void initializeTable();
+
     int getValue(int index);
     void insert(int hashValue, int input);
     int findNextAvailable(int hashValue);
@@ -48,8 +49,8 @@ private:
     void recursivelyOpenSpace(int& currentSpace);
     bool inNeighborhood(int homeValue, int searchValue, int& diff);
     void swapPositions(int i, int current);
-    int search(int hashValue, int input);
-
+    int search(int hashValue, int input, int& offset);
+    void deleteEntry(int hashValue, int location, int offset);
 };
 
 

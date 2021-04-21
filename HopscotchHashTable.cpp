@@ -6,25 +6,31 @@
 #include <string>
 #include <iostream>
 
-
+// constructor (default)
 HopscotchHashTable::HopscotchHashTable(){
     neighborhoodSize_ = 5;
     length_ = 10;    
     initializeTable();
 }
 
+// constructor (specified length)
+// @param length int Length of the table
 HopscotchHashTable::HopscotchHashTable(int length){
     neighborhoodSize_ = 5;
     length_ = length;  
     initializeTable();
 }
 
+// constructor (specified length and neighborhood size)
+// @param length int Length of the table
+// @param neighborhoodSize int size of the bitmaps and neighborhoods for hopscotch
 HopscotchHashTable::HopscotchHashTable(int length, int neighborhoodSize){
     neighborhoodSize_ = neighborhoodSize;
     length_ = length;  
     initializeTable();
 }
 
+// Destructor
 HopscotchHashTable::~HopscotchHashTable(){
 
     // Create the bitmaps for each bucket
@@ -34,6 +40,7 @@ HopscotchHashTable::~HopscotchHashTable(){
     delete table;
 }
 
+// initialize the table of buckets
 void HopscotchHashTable::initializeTable(){
     table = new Bucket[length_];
     // Create the bitmaps for each bucket
@@ -47,10 +54,21 @@ void HopscotchHashTable::initializeTable(){
     }
 }
 
+// getValue
+// get the value stored in a specific location in the table
+// @param index location in the table
+// @param return value at given index
 int HopscotchHashTable::getValue(int index){
+    if(index < 0 || index >= length_){
+        return -1;
+    }
+    
     return table[index].value;
 }
 
+// addValue
+// add a specific value to the table
+// @param input int value to add
 void HopscotchHashTable::addValue(int input){
     // Get Hash Value
     int hashValue = input % length_;
@@ -63,6 +81,10 @@ void HopscotchHashTable::addValue(int input){
     }
 }
 
+// insert
+// insert a value into the table
+// @param hashValue int the hashed value of the input
+// @param input int value to insert
 void HopscotchHashTable::insert(int hashValue, int input){
     // diff is the difference between the homeValue and the actual location
     int diff = 0;
@@ -96,6 +118,10 @@ void HopscotchHashTable::insert(int hashValue, int input){
     }
 }
 
+// findNextAvailable
+// find the next open slot 
+// @param homeValue int the start value for the search
+// @param return int the location of next empty bucket
 int HopscotchHashTable::findNextAvailable(int homeValue){
     int i = homeValue; //Start at the home Value
     bool loop = false;
@@ -113,6 +139,12 @@ int HopscotchHashTable::findNextAvailable(int homeValue){
     return i;
 }
 
+// openSpace
+// maneuver entries to make space in home neighborhood
+// @param homeValue int the slot whose neighborhood we want to open
+// @param nextOpen int& the next open empty slot
+// @param diff int& the offset for the bitmaps
+// @param return bool success or not
 bool HopscotchHashTable::openSpace(const int homeValue, int& nextOpen, int& diff){
     int currentSpace = nextOpen;    // Current location
     bool flag = true;
@@ -238,12 +270,16 @@ void HopscotchHashTable::swapPositions(int i, int current){
     table[tempHome].bitmap[tempOffset] = true;
 }
 
+// printTable
+// print the entire table to std::cout to view
 void HopscotchHashTable::printTable(){
     for(int i = 0; i < length_; i++){
         std::cout << i << ": " << table[i].value << std::endl;
     }
 }
 
+// printBitmaps
+// print the bitmaps for each bucket to std::cout to view
 void HopscotchHashTable::printBitmaps(){
     for(int i = 0; i < length_; i++){
         std::cout << i << ": [";
@@ -254,19 +290,47 @@ void HopscotchHashTable::printBitmaps(){
     }
 }
 
-int HopscotchHashTable::searchValue(int input){
+// removeValue
+// remove a given value from the table
+// @param input int value to remove
+void HopscotchHashTable::removeValue(int input){
     // Get Hash Value
     int hashValue = input % length_;
+    int offset = 0;
     // search
     try{
-        return search(hashValue, input);
+        int location = search(hashValue, input, offset);
+        deleteEntry(hashValue, location, offset);
     }
     catch (std::string e){
         std::cout << e << std::endl;
     }
 }
 
-int HopscotchHashTable::search(int hashValue, int input){
+// searchValue
+// search for a given value in the table
+// @param input int value to search for
+// @param return int the location of the value in the table
+int HopscotchHashTable::searchValue(int input){
+    // Get Hash Value
+    int hashValue = input % length_;
+    int offset = 0;
+    // search
+    try{
+        return search(hashValue, input, offset);
+    }
+    catch (std::string e){
+        std::cout << e << std::endl;
+    }
+}
+
+// search
+// search the bitmaps for a given home value for the desired value
+// @param hashValue int homeValue of neighborhood
+// @param input int value to search for
+// @param offset int& bitmap offset for the found value
+// @param return int location of the value in the table
+int HopscotchHashTable::search(int hashValue, int input, int& offset){
     int index = 0;
     int loopAfter = length_;
     if(neighborhoodSize_ + hashValue > length_){
@@ -281,9 +345,22 @@ int HopscotchHashTable::search(int hashValue, int input){
                 index = hashValue + i;
             }
             if(table[index].value == input){
+                offset = i;
                 return index;
             }
         }
     }
     return -1;
+}
+
+// deleteEntry
+// delete a specific value from the table
+// @param hashValue int home value for entry
+// @param location int location of desired entry to remove
+// @param offset int bitmap offset between the location and the home hash value
+void HopscotchHashTable::deleteEntry(int hashValue, int location, int offset){
+    table[hashValue].bitmap(offset) = false;
+    table[location].value = -1;
+    table[location].homeHashValue = -1;
+    table[location].filled = false;
 }
