@@ -16,8 +16,11 @@ HopscotchHashTable::HopscotchHashTable(){
 // constructor (specified length)
 // @param length int Length of the table
 HopscotchHashTable::HopscotchHashTable(int length){
-    neighborhoodSize_ = 5;
-    length_ = length;  
+    length_ = length;
+    if(length_ % 2 == 1)
+        neighborhoodSize_ = (length_ + 1) / 4;
+    else
+        neighborhoodSize_ = length_/4;
     initializeTable();
 }
 
@@ -66,6 +69,26 @@ int HopscotchHashTable::getValue(int index){
     return table[index].value;
 }
 
+// printTable
+// print the entire table to std::cout to view
+void HopscotchHashTable::printTable(){
+    for(int i = 0; i < length_; i++){
+        std::cout << i << ": " << table[i].value << std::endl;
+    }
+}
+
+// printBitmaps
+// print the bitmaps for each bucket to std::cout to view
+void HopscotchHashTable::printBitmaps(){
+    for(int i = 0; i < length_; i++){
+        std::cout << i << ": [";
+        for(int j = 0; j < neighborhoodSize_; j++){
+            std::cout << table[i].bitmap[j] << " ";
+        }
+        std::cout << "]" << std::endl;
+    }
+}
+
 // addValue
 // add a specific value to the table
 // @param input int value to add
@@ -91,6 +114,9 @@ void HopscotchHashTable::insert(int hashValue, int input){
 
     if(table[hashValue].filled){    // If there is an entry in the home location
         int next = findNextAvailable(hashValue);    // Find next open space
+        if(next == -1){
+            std::cout << "Table is full" << std::endl;
+        }
         // if in neighborhood of home location : Store in found space
         if(inNeighborhood(hashValue, next, diff)){
             table[next].value = input;
@@ -106,8 +132,8 @@ void HopscotchHashTable::insert(int hashValue, int input){
             table[next].homeHashValue = hashValue;
         }
         else{
-            std::cout << "Throwing Error" << std::endl;
-            throw "ERROR";
+            std::cout << "Unable to open space for: "<< input << std::endl;
+            /*             throw "ERROR"; */
         }
     }
     else { // The home location is empty : Assign here
@@ -147,26 +173,14 @@ int HopscotchHashTable::findNextAvailable(int homeValue){
 // @param return bool success or not
 bool HopscotchHashTable::openSpace(const int homeValue, int& nextOpen, int& diff){
     int currentSpace = nextOpen;    // Current location
-    bool flag = true;
-    // Check if there is even space in the home neighborhood bitmap
-    for(int i = 0; i < neighborhoodSize_; ++i){
-        if(table[homeValue].bitmap[i] == false)
-            flag = false;
-            break;
-    }
-    if(!flag)
+
+    if(!openNeighborhood(homeValue))
         return false;
 
-    bool loop = false;
-    // if the desired neighborhood will loop to the beginning
-    if(homeValue + neighborhoodSize_-1 >= length_){
-        loop = true;
-
-    }
     const int endNeighborhood = homeValue + neighborhoodSize_ - 1;   //End location of the home neighborhood
     // Loop until the currentSpace is within the neighborhood or the number of swaps exceeds a given value, typically the length of the table as no operation would require more swaps than elements. 
     int count = 0;
-    while ((currentSpace > endNeighborhood || currentSpace < homeValue ) && count <= length_){
+    while ((currentSpace < homeValue || currentSpace > endNeighborhood) && count <= length_){
 
         recursivelyOpenSpace(currentSpace);
         if(inNeighborhood(homeValue, currentSpace, diff)){
@@ -187,6 +201,16 @@ bool HopscotchHashTable::openSpace(const int homeValue, int& nextOpen, int& diff
         diff = nextOpen - homeValue;
 
     return true;
+}
+
+bool HopscotchHashTable::openNeighborhood(int homeValue){
+    // Check if there is even space in the home neighborhood bitmap
+    for(int i = 0; i < neighborhoodSize_; ++i){
+        if(table[homeValue].bitmap[i] == false){
+            return true;
+        }
+    }
+    return false;
 }
 
 // recursivelyOpenSpace(int& currentSpace)
@@ -230,6 +254,7 @@ bool HopscotchHashTable::inNeighborhood(int homeValue, int searchValue, int& dif
             index = (i + homeValue) - length_;
         else
             index = i + homeValue;
+
         if(index == searchValue){
             diff = i;
             return true;
@@ -270,26 +295,6 @@ void HopscotchHashTable::swapPositions(int i, int current){
     table[tempHome].bitmap[tempOffset] = true;
 }
 
-// printTable
-// print the entire table to std::cout to view
-void HopscotchHashTable::printTable(){
-    for(int i = 0; i < length_; i++){
-        std::cout << i << ": " << table[i].value << std::endl;
-    }
-}
-
-// printBitmaps
-// print the bitmaps for each bucket to std::cout to view
-void HopscotchHashTable::printBitmaps(){
-    for(int i = 0; i < length_; i++){
-        std::cout << i << ": [";
-        for(int j = 0; j < neighborhoodSize_; j++){
-            std::cout << table[i].bitmap[j] << " ";
-        }
-        std::cout << "]" << std::endl;
-    }
-}
-
 // removeValue
 // remove a given value from the table
 // @param input int value to remove
@@ -321,6 +326,7 @@ int HopscotchHashTable::searchValue(int input){
     }
     catch (std::string e){
         std::cout << e << std::endl;
+        return -1;
     }
 }
 
@@ -333,7 +339,7 @@ int HopscotchHashTable::searchValue(int input){
 int HopscotchHashTable::search(int hashValue, int input, int& offset){
     int index = 0;
     int loopAfter = length_;
-    if(neighborhoodSize_ + hashValue > length_){
+    if(willLoop(hashValue)){
         loopAfter = length_ - hashValue - 1;
     }
     for (int i = 0; i < neighborhoodSize_; ++i){
@@ -376,4 +382,11 @@ void HopscotchHashTable::clearTable(){
             table[i].bitmap[j] = false;
         }
     }
+}
+
+// willLoop
+// @param homeValue int home location for neighborhood
+// @param return return if the specified neighborhood will loop back to beginning
+bool HopscotchHashTable::willLoop(int homeValue){
+    return neighborhoodSize_ + homeValue > length_;
 }

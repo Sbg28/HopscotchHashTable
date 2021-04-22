@@ -6,11 +6,19 @@
 
 #include "HopscotchHashTable.hpp"
 #include <iostream>
+#include <random>
 
 int main() {
-    HopscotchHashTable table;
+    const int TABLE_SIZE = 100;
+    HopscotchHashTable table(TABLE_SIZE);
 
-    table.addValue(1);
+    for(int i = 0; i < TABLE_SIZE; ++i){
+        table.addValue(rand() % 300);
+    }
+    table.printTable();
+    table.printBitmaps();
+
+/*     table.addValue(1);
     table.addValue(2);
     table.addValue(3);
     table.addValue(4);
@@ -37,7 +45,7 @@ int main() {
 
     table.clearTable();
     table.printTable();
-    table.printBitmaps();
+    table.printBitmaps(); */
 
 }
 

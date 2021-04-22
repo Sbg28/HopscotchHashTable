@@ -54,6 +54,8 @@ private:
     void swapPositions(int i, int current);
     int search(int hashValue, int input, int& offset);
     void deleteEntry(int hashValue, int location, int offset);
+    bool openNeighborhood(int homeValue);
+    bool willLoop(int homeValue);
 };
 
 #endif
